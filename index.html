@@ -797,39 +797,37 @@
   });
 
 (function () {
-  let isDevToolsOpen = false;
-  const redirectPath = "/Encryptia/error.html"; // Make sure this file exists in your repo
+  let devtoolsOpened = false;
+  const errorUrl = window.location.origin + '/Encryptia/error.html';
 
-  function redirectIfDevToolsDetected() {
-    if (!isDevToolsOpen) {
-      isDevToolsOpen = true;
-      window.location.href = redirectPath;
+  function redirectToError() {
+    if (!devtoolsOpened) {
+      devtoolsOpened = true;
+      window.location.href = errorUrl;
     }
   }
 
-  // DevTools detection via console timing hack
-  const detectDevTools = () => {
-    const start = new Date();
-    debugger; // <- stops execution if DevTools is open
-    const end = new Date();
+  function detectByDebugger() {
+    const start = Date.now();
+    debugger;
+    const end = Date.now();
     if (end - start > 100) {
-      redirectIfDevToolsDetected();
+      redirectToError();
     }
-  };
+  }
 
-  // Console trap
-  const element = new Image();
-  Object.defineProperty(element, 'id', {
-    get: function () {
-      redirectIfDevToolsDetected();
-    }
+  const trap = new Image();
+  Object.defineProperty(trap, 'id', {
+    get: redirectToError
   });
 
-  // Periodic checks
-  setInterval(() => {
-    detectDevTools();
-    console.log(element); // triggers trap if DevTools open
-  }, 1000);
+  function periodicCheck() {
+    detectByDebugger();
+    console.log(trap);
+  }
+
+  window.addEventListener('load', periodicCheck);
+  setInterval(periodicCheck, 800);
 })();
 
 
