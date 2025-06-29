@@ -797,38 +797,40 @@
   });
 
 (function () {
-  let devtoolsOpened = false;
   const errorUrl = window.location.origin + '/Encryptia/error.html';
+  let wasOpen = false;
 
-  function redirectToError() {
-    if (!devtoolsOpened) {
-      devtoolsOpened = true;
+  function isDevToolsOpen() {
+    const threshold = 160;
+    const widthGap = window.outerWidth - window.innerWidth > threshold;
+    const heightGap = window.outerHeight - window.innerHeight > threshold;
+    return widthGap || heightGap;
+  }
+
+  function detectByDebuggerTrap() {
+    const before = new Date().getTime();
+    debugger;
+    const after = new Date().getTime();
+    return after - before > 100;
+  }
+
+  function checkDevTools() {
+    const opened = isDevToolsOpen() || detectByDebuggerTrap();
+
+    if (opened && !wasOpen) {
+      // DevTools just opened
+      wasOpen = true;
       window.location.href = errorUrl;
     }
-  }
 
-  function detectByDebugger() {
-    const start = Date.now();
-    debugger;
-    const end = Date.now();
-    if (end - start > 100) {
-      redirectToError();
+    if (!opened) {
+      wasOpen = false; // Reset if closed
     }
   }
 
-  const trap = new Image();
-  Object.defineProperty(trap, 'id', {
-    get: redirectToError
-  });
-
-  function periodicCheck() {
-    detectByDebugger();
-    console.log(trap);
-  }
-
-  window.addEventListener('load', periodicCheck);
-  setInterval(periodicCheck, 800);
+  setInterval(checkDevTools, 800);
 })();
+
 </script>
 
 </body>
