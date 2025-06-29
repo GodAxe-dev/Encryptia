@@ -796,30 +796,27 @@
     }
   });
 
-    (function devToolsBlocker() {
-    const threshold = 160; // width threshold for detecting dev tools (e.g., bottom panel open)
+  (function devToolsBlocker() {
+    const threshold = 160;
     let devtoolsOpened = false;
 
-    const checkDevTools = () => {
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+    function checkDevTools() {
+      const widthDevtools = window.outerWidth - window.innerWidth > threshold;
+      const heightDevtools = window.outerHeight - window.innerHeight > threshold;
 
-      if (widthThreshold || heightThreshold) {
+      if (widthDevtools || heightDevtools) {
         if (!devtoolsOpened) {
           devtoolsOpened = true;
-          window.location.href = "/Encryptia/blob/main/error.html"; // 🔁 Redirect to your custom error page
+          window.location.href = window.location.origin + "/Encryptia/error.html";
         }
       } else {
         devtoolsOpened = false;
       }
-    };
+    }
 
-    // Run check every 500ms
-    setInterval(checkDevTools, 500);
+    checkDevTools(); // Immediate check
+    setInterval(checkDevTools, 500); // Continuous check
   })();
-
-</script>
-
 
 
 </body>
